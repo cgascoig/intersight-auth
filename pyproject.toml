@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "intersight-auth"
+version = "0.1.1"
+description = "Intersight Authentication helper for requests"
+authors = ["Chris Gascoigne <cgascoig@cisco.com>"]
+readme = "README.md"
+repository = "https://github.com/cgascoig/intersight-auth"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+cryptography = "^37.0.2"
+requests = "^2.27.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
