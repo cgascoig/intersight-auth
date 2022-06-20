@@ -67,7 +67,7 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890/abcdefghizjkl=
 
 session = Session()
 session.auth = IntersightAuth(
-    api_key_id="61e876697564612d33c0b91b/61e876697564612d33c0b920/629933367564612d31dd11f3", 
+    api_key_id="XYZ/XYZ/XYZ", 
     secret_key_string=my_secret_key
     )
 
