@@ -71,19 +71,35 @@ def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
 
 
 class IntersightAuth(AuthBase):
-    """Implements requests custom authentication for Cisco Intersight"""
+    """Implements requests custom authentication for Cisco Intersight.  Specify EITHER the secret_key_filename OR the secret_key_string but not BOTH."""
 
-    def __init__(self, secret_key_filename, api_key_id, secret_key_file_password=None):
+    def __init__(self, api_key_id, secret_key_filename=None, secret_key_string=None, secret_key_file_password=None):
         self.secret_key_filename = secret_key_filename
+        self.secret_key_string = secret_key_string
         self.api_key_id = api_key_id
         self.secret_key_file_password = secret_key_file_password
 
-        with open(secret_key_filename, "rb") as secret_key_file:
+        if secret_key_string and secret_key_filename:
+            raise Exception("Must not specify both secret_key_string and secret_key_filename")
+        if (not secret_key_string) and (not secret_key_filename):
+            raise Exception("Must specify either secret_key_string or secret_key_filename")
+
+        if secret_key_filename:
+            # Process secret key from file
+            with open(secret_key_filename, "rb") as secret_key_file:
+                self.secret_key = serialization.load_pem_private_key(
+                    secret_key_file.read(),
+                    password=secret_key_file_password,
+                    backend=default_backend()
+                    )
+
+        if secret_key_string:
+            # Process secret key from string
             self.secret_key = serialization.load_pem_private_key(
-                secret_key_file.read(),
-                password=secret_key_file_password,
-                backend=default_backend()
-                )
+            secret_key_string.encode('utf-8'),
+            password=secret_key_file_password,
+            backend=default_backend()
+        )
 
     def __call__(self, r):
         """Called by requests to modify and return the authenticated request"""
