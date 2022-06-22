@@ -103,8 +103,7 @@ class IntersightAuth(AuthBase):
 
     def __call__(self, r):
         """Called by requests to modify and return the authenticated request"""
-        date = formatdate(timeval=None, localtime=False, usegmt=True)
-        # date = "Tue, 07 Aug 2018 04:03:47 GMT"
+        date = r.headers.get("Date") or formatdate(timeval=None, localtime=False, usegmt=True)
 
         digest = _get_sha256_digest(r.body)
 
