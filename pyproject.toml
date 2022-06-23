@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "intersight-auth"
-version = "0.2.0"
+version = "0.2.1"
 description = "Intersight Authentication helper for requests"
 authors = ["Chris Gascoigne <cgascoig@cisco.com>"]
 readme = "README.md"
