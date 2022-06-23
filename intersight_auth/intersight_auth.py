@@ -2,7 +2,7 @@
     intersight_auth.py -  provides a class to support Cisco Intersight
     interactions
 
-    author: Chris Gascoigne (cgascoig@cisco.com)
+    author: Chris Gascoigne (cgascoig@cisco.com), Jeremy Williams, David Soper
 """
 # pylint: disable=too-few-public-methods
 from base64 import b64encode
@@ -42,7 +42,7 @@ def _prepare_string_to_sign(req_tgt, hdrs):
     return signature_string
 
 
-def _get_rsasig_b64(key, string_to_sign):
+def _get_signature_b64(key, string_to_sign):
 
     if str(key.__module__) == 'cryptography.hazmat.backends.openssl.rsa':
         return b64encode(key.sign(
@@ -60,7 +60,7 @@ def _get_rsasig_b64(key, string_to_sign):
 def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
 
     string_to_sign = _prepare_string_to_sign(method.lower() + " " + path, signing_headers)
-    b64_signed_auth_digest = _get_rsasig_b64(secret_key, string_to_sign.encode())
+    b64_signed_auth_digest = _get_signature_b64(secret_key, string_to_sign.encode())
 
     if str(secret_key.__module__) == 'cryptography.hazmat.backends.openssl.rsa':
         algo = 'rsa-sha256'
