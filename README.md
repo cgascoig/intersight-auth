@@ -3,6 +3,10 @@
 
 This module provides an authentication helper for requests to make it easy to make [Intersight API](https://intersight.com/apidocs/introduction/overview/) calls using [requests](https://requests.readthedocs.io/en/latest/). 
 
+## Features
+- Supports both v2 and v3 keys
+- Keys can be supplied as strings or path to a PEM file
+
 ## Install
 
 ```
