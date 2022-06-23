@@ -60,16 +60,16 @@ jobs:
       #----------------------------------------------
       - name: Run tests with v2 keys
         env:
-          IS_KEY_ID: {{ secrets.IS_KEY_ID_V2 }}
-          IS_KEY: {{ secrets.IS_KEY_V2 }}
+          IS_KEY_ID: ${{ secrets.IS_KEY_ID_V2 }}
+          IS_KEY: ${{ secrets.IS_KEY_V2 }}
         run: |
           source .venv/bin/activate
           pytest -v
           python examples/ntp.py
       - name: Run tests with v3 keys
         env:
-          IS_KEY_ID: {{ secrets.IS_KEY_ID_V3 }}
-          IS_KEY: {{ secrets.IS_KEY_V3 }}
+          IS_KEY_ID: ${{ secrets.IS_KEY_ID_V3 }}
+          IS_KEY: ${{ secrets.IS_KEY_V3 }}
         run: |
           source .venv/bin/activate
           pytest -v
