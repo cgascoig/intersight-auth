@@ -2,7 +2,7 @@
     intersight_auth.py -  provides a class to support Cisco Intersight
     interactions
 
-    author: Chris Gascoigne (cgascoig@cisco.com)
+    author: Chris Gascoigne (cgascoig@cisco.com), Jeremy Williams, David Soper
 """
 # pylint: disable=too-few-public-methods
 from base64 import b64encode
@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import padding, ec
 
 from requests.auth import AuthBase
 
@@ -32,7 +32,7 @@ def _prepare_string_to_sign(req_tgt, hdrs):
     :return: instance of digest object
     """
 
-    signature_string = '(request-target): ' + req_tgt.lower() + '\n'
+    signature_string = '(request-target): ' + req_tgt + '\n'
 
     for i, (key, value) in enumerate(hdrs.items()):
         signature_string += key.lower() + ': ' + value
@@ -42,22 +42,34 @@ def _prepare_string_to_sign(req_tgt, hdrs):
     return signature_string
 
 
-def _get_rsasig_b64(key, string_to_sign):
+def _get_signature_b64(key, string_to_sign):
 
-    return b64encode(key.sign(
-        string_to_sign,
-        padding.PKCS1v15(),
-        hashes.SHA256()))
+    if str(key.__module__) == 'cryptography.hazmat.backends.openssl.rsa':
+        return b64encode(key.sign(
+            string_to_sign,
+            padding.PKCS1v15(),
+            hashes.SHA256()))
+    elif str(key.__module__) == 'cryptography.hazmat.backends.openssl.ec':
+        return b64encode(key.sign(
+            string_to_sign,
+            ec.ECDSA(hashes.SHA256())))
+    else:
+        raise Exception("Unsupported key type")
 
 
 def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
 
-    string_to_sign = _prepare_string_to_sign(method + " " + path, signing_headers)
-    b64_signed_auth_digest = _get_rsasig_b64(secret_key, string_to_sign.encode())
+    string_to_sign = _prepare_string_to_sign(method.lower() + " " + path, signing_headers)
+    b64_signed_auth_digest = _get_signature_b64(secret_key, string_to_sign.encode())
+
+    if str(secret_key.__module__) == 'cryptography.hazmat.backends.openssl.rsa':
+        algo = 'rsa-sha256'
+    elif str(secret_key.__module__) == 'cryptography.hazmat.backends.openssl.ec':
+        algo = 'hs2019'
 
     auth_str = (
         'Signature keyId="' + api_key_id + '",' +
-        'algorithm="rsa-sha256",headers="(request-target)'
+        'algorithm="' + algo + '",headers="(request-target)'
         )
 
     for key in signing_headers:
@@ -103,8 +115,7 @@ class IntersightAuth(AuthBase):
 
     def __call__(self, r):
         """Called by requests to modify and return the authenticated request"""
-        date = formatdate(timeval=None, localtime=False, usegmt=True)
-        # date = "Tue, 07 Aug 2018 04:03:47 GMT"
+        date = r.headers.get("Date") or formatdate(timeval=None, localtime=False, usegmt=True)
 
         digest = _get_sha256_digest(r.body)
 
