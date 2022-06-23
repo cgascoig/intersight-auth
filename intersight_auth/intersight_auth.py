@@ -36,7 +36,7 @@ def _prepare_string_to_sign(req_tgt, hdrs):
 
     for i, (key, value) in enumerate(hdrs.items()):
         signature_string += key.lower() + ': ' + value
-        if i < len(hdrs.items())-1:
+        if i < len(list(hdrs.items()))-1:
             signature_string += '\n'
 
     return signature_string
