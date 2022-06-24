@@ -1,5 +1,5 @@
 from intersight_auth import __version__
-from intersight_auth import IntersightAuth
+from intersight_auth import IntersightAuth, intersight_auth
 from requests import Request
 import re
 from cryptography.hazmat.backends import default_backend
@@ -23,7 +23,7 @@ v3_key_id = "59c84e4a16267c0001c23428/59cc595416267c0001a0dfc7/62b39fc27564612d3
 #################################################
 
 def test_v3_get():
-    is_auth = IntersightAuth(v3_key_id, secret_key_string=v3_secret_key)
+    is_auth = IntersightAuth(v3_key_id, secret_key_string=intersight_auth.repair_pem(v3_secret_key))
     in_headers={
         "Content-Type":"application/json", 
         "Date": 'Wed, 22 Jun 2022 23:29:22 GMT',
@@ -52,7 +52,7 @@ digest: SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="""
 #################################################
 
 def test_v3_patch():
-    is_auth = IntersightAuth(v3_key_id, secret_key_string=v3_secret_key)
+    is_auth = IntersightAuth(v3_key_id, secret_key_string=intersight_auth.repair_pem(v3_secret_key))
     in_headers={
         "Content-Type":"application/json", 
         "Date": 'Thu, 23 Jun 2022 00:46:41 GMT',

@@ -85,3 +85,22 @@ if not response.ok:
 for policy in response.json()["Results"]:
     print(f"{policy['Name']}")
 ```
+
+## Example of PEM repair
+
+The need to present the secret key in PEM format can be a challenge with some secret management approaches.  The PEM could be collapsed onto a single line, or the whitespace could otherwise be disturbed.  A function is provided to attempt to resolve these kinds of issues.
+
+``` Python
+
+from intersight_auth import IntersightAuth, intersight_auth
+
+# This PEM has required the whitespace removed
+broken_pem = "-----BEGIN EC PRIVATE KEY-----ABCDEFGHIJKLMNOPQRSTUVWXYZ012345678900abcdefghizjklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ012345678900abcdefghizjklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ012345678900abcdefghizjklmnopq-----END EC PRIVATE KEY-----"
+
+session = Session()
+session.auth = IntersightAuth(
+    api_key_id="XYZ/XYZ/XYZ", 
+    secret_key_string=intersight_auth.repair_pem(broken_pem)
+    )
+
+```

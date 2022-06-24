@@ -5,6 +5,7 @@
     author: Chris Gascoigne (cgascoig@cisco.com), Jeremy Williams, David Soper
 """
 # pylint: disable=too-few-public-methods
+import re
 from base64 import b64encode
 from email.utils import formatdate
 from urllib.parse import urlparse
@@ -141,3 +142,22 @@ class IntersightAuth(AuthBase):
         r.headers['Content-Type'] = signing_headers['Content-Type']
 
         return r
+
+def repair_pem(pem_str):
+    """Attempts to repair the whitespace of a PEM formatted value stored as a string"""
+    # This function attempts to repair PEM values that were improperly converted
+    # to a string.  This is a best-effort function and may not be effective.
+    # The basic assumption is that there is an otherwise valid PEM in the input, 
+    # but the whitespace isn't correct to have a valid PEM.
+    try:
+        data_regex = re.compile('\s*-{5}\s*(BEGIN .*?)\s*-{5}(.*?)-{5}\s*(END .*?)\s*-{5}', re.DOTALL)
+        input = data_regex.match(pem_str)
+        header = input.group(1)
+        encapsulated_data = re.sub('\s', '', input.group(2)) #remove whitespace from encapsulated data
+        footer = input.group(3)
+        fixed_pem = '-----' + header + '-----\n'
+        fixed_pem += re.sub('(.{64})', '\\1\n', encapsulated_data) # output 64 bytes of encapsulsted data per line
+        fixed_pem += '\n-----' + footer + '-----\n'
+        return(fixed_pem)
+    except:
+        raise Exception('Unable to locate a valid PEM in the string')
