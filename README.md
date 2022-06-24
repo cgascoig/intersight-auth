@@ -92,7 +92,7 @@ The need to present the secret key in PEM format can be a challenge with some se
 
 ``` Python
 
-from intersight_auth import IntersightAuth, intersight_auth
+from intersight_auth import IntersightAuth, repair_pem
 
 # This PEM has required the whitespace removed
 broken_pem = "-----BEGIN EC PRIVATE KEY-----ABCDEFGHIJKLMNOPQRSTUVWXYZ012345678900abcdefghizjklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ012345678900abcdefghizjklmnopqrstuvwxyABCDEFGHIJKLMNOPQRSTUVWXYZ012345678900abcdefghizjklmnopq-----END EC PRIVATE KEY-----"
@@ -100,7 +100,7 @@ broken_pem = "-----BEGIN EC PRIVATE KEY-----ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 session = Session()
 session.auth = IntersightAuth(
     api_key_id="XYZ/XYZ/XYZ", 
-    secret_key_string=intersight_auth.repair_pem(broken_pem)
+    secret_key_string=repair_pem(broken_pem)
     )
 
 ```
