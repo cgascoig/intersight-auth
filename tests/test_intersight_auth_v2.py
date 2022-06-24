@@ -1,5 +1,5 @@
 from intersight_auth import __version__
-from intersight_auth import IntersightAuth
+from intersight_auth import IntersightAuth, intersight_auth
 from requests import Request
 
 
@@ -43,7 +43,7 @@ v2_key_id = "59c84e4a16267c0001c23428/59cc595416267c0001a0dfc7/62b3ba347564612d3
 # send: b'GET /api/v1/ntp/Policies HTTP/1.1\r\nUser-Agent: python-requests/2.28.0\r\nAccept-Encoding: gzip, deflate\r\nAccept: */*\r\nConnection: keep-alive\r\nDigest: SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\r\nDate: Thu, 23 Jun 2022 00:57:07 GMT\r\nAuthorization: Signature keyId="59c84e4a16267c0001c23428/59cc595416267c0001a0dfc7/62b3ba347564612d3198f5b1",algorithm="rsa-sha256",headers="(request-target) date host content-type digest", signature="Ioygtr7Uq8dHJirKU0Hq/LLQYGeLHnzgZwaSpsw1yMqkrlx3Atnu7LBISrQ+wO2QkQbvp85VqKawnikuoXoCJVaLb1KtKOMERWUPEbnPgzS/gORWWpPlMXLHbNALdInuvSSogh1qXysKHJtnu2srWmOFqU3g2aZ5gfkrzeQ/eQ97okPzpq8s8N0oUO4FmnXXSSS7MGp/yUbq+7LZkXYPIO0sapPZqSKIAtpfmoU5s218sdoxW2TMAK+pnmux1K4idQVCbz5BX3Yyb2iXR55usH1qk3IUSACeZJ+X7gP8CKYTUTEnkkCQa/TLbtD/hcjrRyqD6K7RXf59ZiimQP5FHA=="\r\nHost: intersight.com\r\nContent-Type: application/json\r\n\r\n'
 
 def test_v2_get():
-    is_auth = IntersightAuth(v2_key_id, secret_key_string=v2_secret_key)
+    is_auth = IntersightAuth(v2_key_id, secret_key_string=intersight_auth.repair_pem(v2_secret_key))
     in_headers={
         "Content-Type":"application/json", 
         "Date": "Thu, 23 Jun 2022 00:57:07 GMT",
@@ -66,7 +66,7 @@ def test_v2_get():
 
 
 def test_v2_patch():
-    is_auth = IntersightAuth(v2_key_id, secret_key_string=v2_secret_key)
+    is_auth = IntersightAuth(v2_key_id, secret_key_string=intersight_auth.repair_pem(v2_secret_key))
     in_headers={
         "Content-Type":"application/json", 
         "Date": "Thu, 23 Jun 2022 00:59:53 GMT",
