@@ -4,7 +4,7 @@ from requests import Request
 import re
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding, ec
+from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.exceptions import InvalidSignature
 import base64
 
@@ -23,26 +23,27 @@ v3_key_id = "59c84e4a16267c0001c23428/59cc595416267c0001a0dfc7/62b39fc27564612d3
 #################################################
 
 def test_v3_get():
+    content_type = "application/json"
+    req_date = 'Wed, 22 Jun 2022 23:29:22 GMT'
     is_auth = IntersightAuth(v3_key_id, secret_key_string=repair_pem(v3_secret_key))
     in_headers={
-        "Content-Type":"application/json", 
-        "Date": 'Wed, 22 Jun 2022 23:29:22 GMT',
+        "Content-Type": content_type, 
+        "Date": req_date,
     }
     req = Request(method="GET", url="https://intersight.com/api/v1/ntp/Policies", headers=in_headers).prepare()
 
     new_req = is_auth(req)
     assert new_req.headers["Digest"] == "SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="
-    # assert new_req.headers["Authorization"] == 'Signature keyId="59c84e4a16267c0001c23428/59cc595416267c0001a0dfc7/62b39fc27564612d319801ce",algorithm="hs2019",headers="(request-target) date host content-type digest",signature="MEQCIEzjVQqKY70QdMkDiJjS2cc8kTnuiek6OpCFTayW7+8GAiBpPvIQUaubvEmJwQJMHyG/3KhQb+0nbMr5ICzu9JRiaw=="'
     assert new_req.headers["Host"] == "intersight.com"
-    assert new_req.headers["Content-Type"] == "application/json"
-    assert new_req.headers["Date"] == 'Wed, 22 Jun 2022 23:29:22 GMT'
+    assert new_req.headers["Content-Type"] == content_type
+    assert new_req.headers["Date"] == req_date
 
     # For v3 (ECDSA) authentication, the signature is not deterministic (includes a random nonce) so we can't just use known-good examples. 
     # Instead, we can verify that the signed string is correct and verify against the signature
-    signed_string = """(request-target): get /api/v1/ntp/Policies
-date: Wed, 22 Jun 2022 23:29:22 GMT
+    signed_string = f"""(request-target): get /api/v1/ntp/Policies
+date: {req_date}
 host: intersight.com
-content-type: application/json
+content-type: {content_type}
 digest: SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="""
 
     assert _verify_signature(new_req.headers["Authorization"], signed_string)
@@ -52,26 +53,27 @@ digest: SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="""
 #################################################
 
 def test_v3_patch():
+    content_type = "application/json"
+    req_date = 'Thu, 23 Jun 2022 00:46:41 GMT'
     is_auth = IntersightAuth(v3_key_id, secret_key_string=repair_pem(v3_secret_key))
     in_headers={
-        "Content-Type":"application/json", 
-        "Date": 'Thu, 23 Jun 2022 00:46:41 GMT',
+        "Content-Type": content_type, 
+        "Date": req_date,
     }
     req = Request(method="PATCH", url="https://intersight.com/api/v1/ntp/Policies/629713736275722d31a1ac7c", headers=in_headers, data='{"Enabled": false}').prepare()
 
     new_req = is_auth(req)
     assert new_req.headers["Digest"] == "SHA-256=Bzjzvy6urg1NJwfPKkZD1hRAMnyZdcKg9HLATHU/ULc="
-    # assert new_req.headers["Authorization"] == 'Signature keyId="59c84e4a16267c0001c23428/59cc595416267c0001a0dfc7/62b39fc27564612d319801ce",algorithm="hs2019",headers="(request-target) date host content-type digest", signature="MEUCIQDF8UQwsVrQwh3dHBgrFdqACVpcZZ8IUvrSaN5521YzQQIgccDsL82oeAjQ6ppItUXVWABqYCD/U8oz7vOrTiz0jLM="'
     assert new_req.headers["Host"] == "intersight.com"
-    assert new_req.headers["Content-Type"] == "application/json"
-    assert new_req.headers["Date"] == 'Thu, 23 Jun 2022 00:46:41 GMT'
+    assert new_req.headers["Content-Type"] == content_type
+    assert new_req.headers["Date"] == req_date
 
     # For v3 (ECDSA) authentication, the signature is not deterministic (includes a random nonce) so we can't just use known-good examples. 
     # Instead, we can verify that the signed string is correct and verify against the signature
-    signed_string = """(request-target): patch /api/v1/ntp/Policies/629713736275722d31a1ac7c
-date: Thu, 23 Jun 2022 00:46:41 GMT
+    signed_string = f"""(request-target): patch /api/v1/ntp/Policies/629713736275722d31a1ac7c
+date: {req_date}
 host: intersight.com
-content-type: application/json
+content-type: {content_type}
 digest: SHA-256=Bzjzvy6urg1NJwfPKkZD1hRAMnyZdcKg9HLATHU/ULc="""
 
     assert _verify_signature(new_req.headers["Authorization"], signed_string)

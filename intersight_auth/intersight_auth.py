@@ -150,13 +150,13 @@ def repair_pem(pem_str):
     # The basic assumption is that there is an otherwise valid PEM in the input, 
     # but the whitespace isn't correct to have a valid PEM.
     try:
-        data_regex = re.compile('\s*-{5}\s*(BEGIN .*?)\s*-{5}(.*?)-{5}\s*(END .*?)\s*-{5}', re.DOTALL)
-        input = data_regex.match(pem_str)
-        header = input.group(1)
-        encapsulated_data = re.sub('\s', '', input.group(2)) #remove whitespace from encapsulated data
-        footer = input.group(3)
+        data_regex = re.compile(r'\s*-{5}\s*(BEGIN .*?)\s*-{5}(.*?)-{5}\s*(END .*?)\s*-{5}', re.DOTALL)
+        input_match = data_regex.match(pem_str)
+        header = input_match.group(1)
+        encapsulated_data = re.sub(r'\s', '', input_match.group(2)) #remove whitespace from encapsulated data
+        footer = input_match.group(3)
         fixed_pem = '-----' + header + '-----\n'
-        fixed_pem += re.sub('(.{64})', '\\1\n', encapsulated_data) # output 64 bytes of encapsulsted data per line
+        fixed_pem += re.sub(r'(.{64})', '\\1\n', encapsulated_data) # output 64 bytes of encapsulsted data per line
         fixed_pem += '\n-----' + footer + '-----\n'
         return(fixed_pem)
     except:
