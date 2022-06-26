@@ -55,7 +55,7 @@ def _get_signature_b64(key, string_to_sign):
             string_to_sign,
             ec.ECDSA(hashes.SHA256())))
     else:
-        raise Exception("Unsupported key type")
+        raise IntersightAuthKeyException("Unsupported key type")
 
 
 def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
@@ -93,9 +93,9 @@ class IntersightAuth(AuthBase):
         self.secret_key_file_password = secret_key_file_password
 
         if secret_key_string and secret_key_filename:
-            raise Exception("Must not specify both secret_key_string and secret_key_filename")
+            raise IntersightAuthKeyException("Must not specify both secret_key_string and secret_key_filename")
         if (not secret_key_string) and (not secret_key_filename):
-            raise Exception("Must specify either secret_key_string or secret_key_filename")
+            raise IntersightAuthKeyException("Must specify either secret_key_string or secret_key_filename")
 
         if secret_key_filename:
             # Process secret key from file
@@ -159,5 +159,9 @@ def repair_pem(pem_str):
         fixed_pem += re.sub(r'(.{64})', '\\1\n', encapsulated_data) # output 64 bytes of encapsulsted data per line
         fixed_pem += '\n-----' + footer + '-----\n'
         return(fixed_pem)
-    except:
-        raise Exception('Unable to locate a valid PEM in the string')
+    except Exception:
+        raise IntersightAuthKeyException('Unable to locate a valid PEM in the string')
+
+class IntersightAuthKeyException(Exception):
+    """Raised when there is an error with the supplied key"""
+    pass
