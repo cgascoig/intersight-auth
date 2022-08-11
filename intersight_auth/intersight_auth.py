@@ -21,7 +21,10 @@ def _get_sha256_digest(data):
     hasher = hashes.Hash(hashes.SHA256(), default_backend())
 
     if data is not None:
-        hasher.update(data.encode())
+        if type(data) == bytes:  
+            hasher.update(data)
+        else:
+            hasher.update(data.encode())
 
     return hasher.finalize()
 
