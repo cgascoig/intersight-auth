@@ -22,7 +22,7 @@ def _get_sha256_digest(data):
     hasher = hashes.Hash(hashes.SHA256(), default_backend())
 
     if data is not None:
-        if type(data) == bytes:  
+        if type(data) == bytes:
             hasher.update(data)
         else:
             hasher.update(data.encode())
