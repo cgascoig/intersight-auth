@@ -3,6 +3,7 @@ from intersight_auth import IntersightAuth, repair_pem
 from requests import Request
 from .sample_keys import v2_key_id, v2_secret_key
 
+
 def test_json_body():
     """
     Ensure that supplying json=<object> instead of data=<string> doesn't cause an exception

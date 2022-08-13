@@ -1,4 +1,3 @@
-
 # this is not a real/valid key
 v2_secret_key = """
 -----BEGIN RSA PRIVATE KEY-----
