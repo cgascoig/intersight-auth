@@ -20,7 +20,6 @@ from requests.auth import AuthBase
 
 
 def _get_sha256_digest(data):
-
     hasher = hashes.Hash(hashes.SHA256(), default_backend())
 
     if data is not None:
@@ -50,7 +49,6 @@ def _prepare_string_to_sign(req_tgt, hdrs):
 
 
 def _get_signature_b64(key, string_to_sign):
-
     if isinstance(key, rsa.RSAPrivateKey):
         return b64encode(key.sign(string_to_sign, padding.PKCS1v15(), hashes.SHA256()))
     if isinstance(key, ec.EllipticCurvePrivateKey):
@@ -60,7 +58,6 @@ def _get_signature_b64(key, string_to_sign):
 
 
 def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
-
     string_to_sign = _prepare_string_to_sign(
         method.lower() + " " + path, signing_headers
     )
