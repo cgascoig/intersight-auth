@@ -4,6 +4,7 @@
 
     author: Chris Gascoigne (cgascoig@cisco.com), Jeremy Williams, David Soper
 """
+
 # pylint: disable=too-few-public-methods
 import re
 from base64 import b64encode
@@ -13,12 +14,12 @@ from urllib.parse import urlparse
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, ec
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 
 from requests.auth import AuthBase
 
 
 def _get_sha256_digest(data):
-
     hasher = hashes.Hash(hashes.SHA256(), default_backend())
 
     if data is not None:
@@ -48,25 +49,23 @@ def _prepare_string_to_sign(req_tgt, hdrs):
 
 
 def _get_signature_b64(key, string_to_sign):
-
-    if str(key.__module__) == "cryptography.hazmat.backends.openssl.rsa":
+    if isinstance(key, rsa.RSAPrivateKey):
         return b64encode(key.sign(string_to_sign, padding.PKCS1v15(), hashes.SHA256()))
-    elif str(key.__module__) == "cryptography.hazmat.backends.openssl.ec":
+    if isinstance(key, ec.EllipticCurvePrivateKey):
         return b64encode(key.sign(string_to_sign, ec.ECDSA(hashes.SHA256())))
     else:
-        raise IntersightAuthKeyException("Unsupported key type")
+        raise IntersightAuthKeyException(f"Unsupported key type '{type(key).__name__}'")
 
 
 def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
-
     string_to_sign = _prepare_string_to_sign(
         method.lower() + " " + path, signing_headers
     )
     b64_signed_auth_digest = _get_signature_b64(secret_key, string_to_sign.encode())
 
-    if str(secret_key.__module__) == "cryptography.hazmat.backends.openssl.rsa":
+    if isinstance(secret_key, rsa.RSAPrivateKey):
         algo = "rsa-sha256"
-    elif str(secret_key.__module__) == "cryptography.hazmat.backends.openssl.ec":
+    if isinstance(secret_key, ec.EllipticCurvePrivateKey):
         algo = "hs2019"
 
     auth_str = (
