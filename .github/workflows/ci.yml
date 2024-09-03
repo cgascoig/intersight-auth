@@ -12,6 +12,8 @@ on:
     paths-ignore:
       - "README.md"
       - ".gitignore"
+  schedule:
+    - cron: "0 5 4 * *" # run at 5:00am on the 4th of each month
 jobs:
   linting:
     runs-on: ubuntu-latest
