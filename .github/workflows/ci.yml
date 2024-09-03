@@ -6,42 +6,42 @@ on:
     paths-ignore:
       - "README.md"
       - ".gitignore"
-  pull_request_target:
+  pull_request:
     branches:
       - main
     paths-ignore:
       - "README.md"
       - ".gitignore"
 jobs:
-  # linting:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     #----------------------------------------------
-  #     #       check-out repo and set-up python
-  #     #----------------------------------------------
-  #     - uses: actions/checkout@v2
-  #     - uses: actions/setup-python@v2
-  #     #----------------------------------------------
-  #     #        load pip cache if cache exists
-  #     #----------------------------------------------
-  #     - uses: actions/cache@v2
-  #       with:
-  #         path: ~/.cache/pip
-  #         key: ${{ runner.os }}-pip
-  #         restore-keys: ${{ runner.os }}-pip
-  #     #----------------------------------------------
-  #     #          install and run linters
-  #     #----------------------------------------------
-  #     - run: python -m pip install black
-  #     - run: |
-  #         black . --check --diff
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      #----------------------------------------------
+      #        load pip cache if cache exists
+      #----------------------------------------------
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip
+          restore-keys: ${{ runner.os }}-pip
+      #----------------------------------------------
+      #          install and run linters
+      #----------------------------------------------
+      - run: python -m pip install black
+      - run: |
+          black . --check --diff
   test:
     strategy:
       fail-fast: true
       max-parallel: 4
       matrix:
         os: [ "ubuntu-latest" ]
-        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12" ]
     runs-on: ${{ matrix.os }}
     steps:
       #----------------------------------------------
