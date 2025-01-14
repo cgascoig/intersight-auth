@@ -12,12 +12,16 @@ from requests import Session
 
 base_url = "https://intersight.com/api/v1"
 
-key_id = os.environ["IS_KEY_ID"]
-secret_key = os.environ["IS_KEY"]
-
 session = Session()
-session.auth = IntersightAuth(key_id, secret_key_string=secret_key)
-
+if "IS_KEY_ID" in os.environ and "IS_KEY" in os.environ:
+    print("Using API key authentication")
+    session.auth = IntersightAuth(os.environ["IS_KEY_ID"], secret_key_string=os.environ["IS_KEY"])
+elif "IS_OAUTH_CLIENT_ID" in os.environ and "IS_OAUTH_CLIENT_SECRET" in os.environ:
+    print("Using OAuth authentication")
+    session.auth = IntersightAuth(oauth_client_id=os.environ["IS_OAUTH_CLIENT_ID"], oauth_client_secret=os.environ["IS_OAUTH_CLIENT_SECRET"])
+else:
+    print("Missing credentials for test in environment variables (either IS_KEY_ID/IS_KEY or IS_OAUTH_CLIENT_ID/IS_OAUTH_CLIENT_SECRET)")
+    sys.exit(1)
 
 now = f"{datetime.now().isoformat()[:-6].rstrip('0')}000Z"
 correctresponse = (
