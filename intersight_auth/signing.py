@@ -99,6 +99,7 @@ def load_secret_key(secret_key_filename, secret_key_string, secret_key_file_pass
     except:
         raise IntersightAuthKeyException("Error loading API secret key")
 
+
 def sign_request(r: PreparedRequest, api_key_id, secret_key) -> PreparedRequest:
     date = r.headers.get("Date") or formatdate(
         timeval=None, localtime=False, usegmt=True
