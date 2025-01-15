@@ -1,10 +1,12 @@
 import responses
 from requests import Request
+from intersight_auth.exceptions import IntersightAuthOAuthException
 from intersight_auth.oauth import IntersightOAuth
 from intersight_auth import IntersightAuth
 from .sample_keys import oauth_client_id, oauth_client_secret
 import time
 from unittest import mock
+import pytest
 
 SAMPLE_TOKEN = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnRlcnNpZ2h0Ijp7ImFjY291bnRfaWQiOiI1OWM4NGU0YTE2MjY3YzAwMDFjMjM0MjgiLCJhY2NvdW50X25hbWUiOiJDaXNjby1BdXN0cmFsaWEtTWVsU3lkLUxhYnMiLCJyb2xlcyI6IkFjY291bnQgQWRtaW5pc3RyYXRvciIsInJvbGVfaWRzIjoiNTk2MDkwMWVhOTRlYmEwMDAxMjdlM2M2IiwiZG9tYWluZ3JvdXBfaWQiOiI1YjI1NDE4ZDdhNzY2Mjc0MzQ2NWNmNzIiLCJwZXJtaXNzaW9uX3Jlc3RyaWN0ZWRfdG9fb3JncyI6Im5vIiwicmVnaW9uIjoiaW50ZXJzaWdodC1hd3MtdXMtZWFzdC0xIn0sImF1ZCI6Imh0dHBzOi8vd3d3LmludGVyc2lnaHQuY29tIiwiZXhwIjoxNzM2NDkyMDA3LCJpYXQiOjE3MzY0OTE0MDcsImlzcyI6Imh0dHBzOi8vd3d3LmludGVyc2lnaHQuY29tIiwic3ViIjoiMmNlMzQ2OTYxYjEzNjkxNzgzYWZmZWQ1MGEzMzVjMGFiMzhlMzBiYjdiNjhhMzI1NWY1YmQ5MWEzOTU3YWQ0NS01YjI1NDE4ZDdhNzY2Mjc0MzQ2NWNmNzIifQ.BMOyBb0yQf3rCHI-ioinwSC8ha1_7EwQelQoqp9HlyrAHMJtLQILtAmEMkl9NVM053gkzFvexoHN1RySpZv7Cg"
 
@@ -104,3 +106,33 @@ def test_oauth():
     assert new_req.headers["Authorization"] == f"Bearer {SAMPLE_TOKEN}"
     assert new_req.headers["Content-Type"] == content_type
     assert new_req.headers["Date"] == req_date
+
+
+@responses.activate
+def test_oauth_token_failure():
+    """
+    Test that IntersighAuth fails correctly when token response is error
+    """
+    responses.add(
+        responses.POST,
+        "https://intersight.com/iam/token",
+        status=401,
+    )
+
+    content_type = "application/json"
+    req_date = "Thu, 23 Jun 2022 00:57:07 GMT"
+    is_auth = IntersightAuth(
+        oauth_client_id=oauth_client_id, oauth_client_secret=oauth_client_secret
+    )
+    in_headers = {
+        "Content-Type": content_type,
+        "Date": req_date,
+    }
+    req = Request(
+        method="GET",
+        url="https://intersight.com/api/v1/ntp/Policies",
+        headers=in_headers,
+    ).prepare()
+
+    with pytest.raises(IntersightAuthOAuthException):
+        is_auth(req)
