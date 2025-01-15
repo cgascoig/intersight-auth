@@ -10,10 +10,16 @@ repository = "https://github.com/cgascoig/intersight-auth"
 python = "^3.8"
 cryptography = ">37.0.2"
 requests = "^2.27.1"
+oauthlib = "^3.2.2"
 
 [tool.poetry.dev-dependencies]
 pytest = ">7.1.2"
 black = ">=24.8.0"
+
+[tool.poetry.group.dev.dependencies]
+responses = "^0.25.3"
+types-requests = "^2.32.0.20241016"
+types-oauthlib = "^3.2.0.20240806"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

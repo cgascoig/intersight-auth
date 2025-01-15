@@ -44,8 +44,8 @@ jobs:
       fail-fast: true
       max-parallel: 4
       matrix:
-        os: [ "ubuntu-latest" ]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        os: ["ubuntu-latest"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
     runs-on: ${{ matrix.os }}
     steps:
       #----------------------------------------------
@@ -105,6 +105,13 @@ jobs:
         env:
           IS_KEY_ID: ${{ secrets.IS_KEY_ID_V3 }}
           IS_KEY: ${{ secrets.IS_KEY_V3 }}
+        run: |
+          source .venv/bin/activate
+          for test in $(find examples -name \*.py -type f); do python ${test}; done
+      - name: Run tests with OAuth
+        env:
+          IS_OAUTH_CLIENT_ID: ${{ secrets.IS_OAUTH_CLIENT_ID }}
+          IS_OAUTH_CLIENT_SECRET: ${{ secrets.IS_OAUTH_CLIENT_SECRET }}
         run: |
           source .venv/bin/activate
           for test in $(find examples -name \*.py -type f); do python ${test}; done

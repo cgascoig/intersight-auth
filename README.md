@@ -1,10 +1,11 @@
 [![CI Tests](https://github.com/cgascoig/intersight-auth/actions/workflows/ci.yml/badge.svg)](https://github.com/cgascoig/intersight-auth/actions/workflows/ci.yml)
 # intersight-auth
 
-This module provides an authentication helper for requests to make it easy to make [Intersight API](https://intersight.com/apidocs/introduction/overview/) calls using [requests](https://requests.readthedocs.io/en/latest/). 
+This module provides an authentication helper for requests to make it easy to make [Intersight API](https://intersight.com/apidocs/introduction/overview/) calls using [requests](https://requests.readthedocs.io/en/latest/).
 
 ## Features
-- Supports both v2 and v3 keys
+- Supports both v2 and v3 Intersight API keys for authentication
+- Supports OAuth authentication
 - Keys can be supplied as strings or path to a PEM file
 
 ## Install
@@ -72,9 +73,33 @@ ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890/abcdefghizjkl=
 
 session = Session()
 session.auth = IntersightAuth(
-    api_key_id="XYZ/XYZ/XYZ", 
+    api_key_id="XYZ/XYZ/XYZ",
     secret_key_string=my_secret_key
     )
+
+response = session.get("https://intersight.com/api/v1/ntp/Policies")
+
+if not response.ok:
+    print(f"Error: {response.status_code} {response.reason}")
+    sys.exit(1)
+
+for policy in response.json()["Results"]:
+    print(f"{policy['Name']}")
+```
+
+## Example using OAuth authentication
+
+``` Python
+import sys
+
+from intersight_auth import IntersightAuth
+from requests import Session
+
+oauth_client_id = "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef123456789"
+oauth_client_secret = "1234567890abcdef1234567890abcdef"
+
+session = Session()
+session.auth = IntersightAuth(oauth_client_id=oauth_client_id, oauth_client_secret=oauth_client_secret)
 
 response = session.get("https://intersight.com/api/v1/ntp/Policies")
 
@@ -99,7 +124,7 @@ broken_pem = "-----BEGIN EC PRIVATE KEY-----ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 
 session = Session()
 session.auth = IntersightAuth(
-    api_key_id="XYZ/XYZ/XYZ", 
+    api_key_id="XYZ/XYZ/XYZ",
     secret_key_string=repair_pem(broken_pem)
     )
 
