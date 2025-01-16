@@ -78,24 +78,14 @@ def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
     return auth_str
 
 
-def load_secret_key(secret_key_filename, secret_key_string, secret_key_file_password):
+def load_secret_key(secret_key: bytes, secret_key_password):
     try:
-        if secret_key_filename:
-            # Process secret key from file
-            with open(secret_key_filename, "rb") as secret_key_file:
-                return serialization.load_pem_private_key(
-                    secret_key_file.read(),
-                    password=secret_key_file_password,
-                    backend=default_backend(),
-                )
-
-        if secret_key_string:
-            # Process secret key from string
-            return serialization.load_pem_private_key(
-                secret_key_string.encode("utf-8"),
-                password=secret_key_file_password,
-                backend=default_backend(),
-            )
+        # Process secret key from string
+        return serialization.load_pem_private_key(
+            secret_key,
+            password=secret_key_password,
+            backend=default_backend(),
+        )
     except:
         raise IntersightAuthKeyException("Error loading API secret key")
 

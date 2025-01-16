@@ -9,16 +9,11 @@
 import re
 
 from requests.auth import AuthBase
-from enum import Enum
 
 from .signing import load_secret_key, sign_request
-from .exceptions import IntersightAuthKeyException, IntersightAuthConfigException
+from .exceptions import IntersightAuthKeyException
+from .intersight_auth_config import AuthMode, IntersightAuthConfig
 from .oauth import IntersightOAuth
-
-
-class AuthMode(Enum):
-    APIKEY = "apikey"
-    OAUTH = "oauth"
 
 
 class IntersightAuth(AuthBase):
@@ -33,50 +28,32 @@ class IntersightAuth(AuthBase):
         oauth_client_id=None,
         oauth_client_secret=None,
     ):
-        self.secret_key_filename = secret_key_filename
-        self.secret_key_string = secret_key_string
-        self.api_key_id = api_key_id
-        self.secret_key_file_password = secret_key_file_password
-        self.oauth_client_id = oauth_client_id
-        self.oauth_client_secret = oauth_client_secret
+        self.config = IntersightAuthConfig(
+            api_key_id=api_key_id,
+            secret_key_filename=secret_key_filename,
+            secret_key_string=secret_key_string,
+            secret_key_password=secret_key_file_password,  # Internally this has been renamed to secret_key_password but leave the public API as secret_key_file_password for compatibility
+            oauth_client_id=oauth_client_id,
+            oauth_client_secret=oauth_client_secret,
+        )
 
-        mode = None
-        if self.api_key_id is not None and (
-            self.secret_key_string is not None or self.secret_key_filename is not None
-        ):
-            mode = AuthMode.APIKEY
-
-        if self.oauth_client_id is not None and self.oauth_client_secret is not None:
-            if mode is not None:
-                raise IntersightAuthConfigException(
-                    "Must not specify both API key authentication and OAuth authentication"
-                )
-            mode = AuthMode.OAUTH
-
-        if mode is None:
-            raise IntersightAuthConfigException(
-                "Must specify either API key plus secret or OAuth client_id plus client_secret"
-            )
-
-        self.mode = mode
-
-        if mode == AuthMode.APIKEY:
+        if self.config.mode == AuthMode.APIKEY:
             self.secret_key = load_secret_key(
-                secret_key_filename=self.secret_key_filename,
-                secret_key_string=self.secret_key_string,
-                secret_key_file_password=self.secret_key_file_password,
+                secret_key=self.config.secret_key,
+                secret_key_password=self.config.secret_key_password,
             )
 
-        if mode == AuthMode.OAUTH:
-            self.oauth = IntersightOAuth(self.oauth_client_id, self.oauth_client_secret)
+        if self.config.mode == AuthMode.OAUTH:
+            self.oauth = IntersightOAuth(
+                self.config.oauth_client_id, self.config.oauth_client_secret
+            )
 
     def __call__(self, r):
         """Called by requests to modify and return the authenticated request"""
 
-        if self.mode == AuthMode.APIKEY:
-            r = sign_request(r, self.api_key_id, self.secret_key)
-        elif self.mode == AuthMode.OAUTH:
-            # r = oauth_request(r, self.oauth_client_id, self.oauth_client_secret)
+        if self.config.mode == AuthMode.APIKEY:
+            r = sign_request(r, self.config.api_key_id, self.secret_key)
+        elif self.config.mode == AuthMode.OAUTH:
             r = self.oauth.oauth_request(r)
 
         return r
