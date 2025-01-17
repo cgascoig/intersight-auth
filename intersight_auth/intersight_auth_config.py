@@ -1,6 +1,6 @@
 from enum import Enum
 import os
-from typing import List
+from typing import List, Optional
 
 from .exceptions import IntersightAuthConfigException, IntersightAuthKeyException
 
@@ -10,7 +10,7 @@ ENV_VAR_PREFIXES = ["INTERSIGHT", "IS"]
 class IntersightAuthConfig:
     def __init__(
         self,
-        api_key_id: str | None = None,
+        api_key_id: Optional[str] = None,
         secret_key_filename=None,
         secret_key_string=None,
         secret_key_password=None,
@@ -27,7 +27,7 @@ class IntersightAuthConfig:
         )
 
         # Resolve secret_key from string or file
-        secret_key: None | bytes = None
+        secret_key: Optional[bytes] = None
         try:
             if secret_key_string is not None:
                 secret_key = secret_key_string.encode("utf-8")
@@ -65,8 +65,8 @@ class AuthMode(Enum):
 
 
 def _get_config_item(
-    param: None | str, env_vars: None | List[str], default: None | str = None
-) -> None | str:
+    param: Optional[str], env_vars: Optional[List[str]], default: Optional[str] = None
+) -> Optional[str]:
     """
     Resolve the value of a configuration item (e.g. api_key_id) in order of preference:
      - explicit parameter
