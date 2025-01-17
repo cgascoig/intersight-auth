@@ -111,6 +111,34 @@ for policy in response.json()["Results"]:
     print(f"{policy['Name']}")
 ```
 
+## Configuration from environment variables
+
+If you leave the parameters empty, `IntersightAuth` will attempt to automatically discover the API key or OAuth credentials from the environment variables:
+
+``` Python
+session = Session()
+session.auth = IntersightAuth()
+
+response = session.get("https://intersight.com/api/v1/ntp/Policies")
+
+...
+```
+
+The following environment variables can be used:
+* IS_KEY_ID
+* IS_KEY
+* IS_KEY_FILE
+* IS_KEY_PASSWORD
+* IS_OAUTH_CLIENT_ID
+* IS_OAUTH_CLIENT_SECRET
+* INTERSIGHT_KEY_ID
+* INTERSIGHT_KEY
+* INTERSIGHT_KEY_FILE
+* INTERSIGHT_KEY_PASSWORD
+* INTERSIGHT_OAUTH_CLIENT_ID
+* INTERSIGHT_OAUTH_CLIENT_SECRET
+
+
 ## Example of PEM repair
 
 The need to present the secret key in PEM format can be a challenge with some secret management approaches.  The PEM could be collapsed onto a single line, or the whitespace could otherwise be disturbed.  A function is provided to attempt to resolve these kinds of issues.
