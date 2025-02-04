@@ -1,8 +1,8 @@
 """
-    intersight_auth.py -  provides a class to support Cisco Intersight
-    interactions
+intersight_auth.py -  provides a class to support Cisco Intersight
+interactions
 
-    author: Chris Gascoigne (cgascoig@cisco.com), Jeremy Williams, David Soper
+author: Chris Gascoigne (cgascoig@cisco.com), Jeremy Williams, David Soper
 """
 
 # pylint: disable=too-few-public-methods
