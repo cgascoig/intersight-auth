@@ -1,6 +1,6 @@
 [project]
 name = "intersight-auth"
-version = "0.3.1"
+version = "0.3.2"
 description = "Intersight Authentication helper for requests"
 authors = [
     {name = "Chris Gascoigne", email="cgascoig@cisco.com"},
@@ -13,7 +13,7 @@ dynamic = ["dependencies"]
 repository = "https://github.com/cgascoig/intersight-auth"
 
 [tool.poetry.dependencies]
-cryptography = ">37.0.2"
+cryptography = ">37.0.2,<45.0"
 requests = "^2.27.1"
 oauthlib = "^3.2.2"
 
