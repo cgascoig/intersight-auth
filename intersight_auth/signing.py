@@ -78,9 +78,19 @@ def _get_auth_header(signing_headers, method, path, api_key_id, secret_key):
     return auth_str
 
 
+# This will fix the format of a v3 secret key, if needed.
+# Some v3 keys PEM files are incorrectly formatted with
+# "BEGIN EC PRIVATE KEY" instead of "BEGIN PRIVATE KEY"
+def _fix_v3_key_format(secret_key: bytes):
+    return secret_key.replace(
+        b"-----BEGIN EC PRIVATE KEY-----", b"-----BEGIN PRIVATE KEY-----"
+    ).replace(b"-----END EC PRIVATE KEY-----", b"-----END PRIVATE KEY-----")
+
+
 def load_secret_key(secret_key: bytes, secret_key_password):
     try:
         # Process secret key from string
+        secret_key = _fix_v3_key_format(secret_key)
         return serialization.load_pem_private_key(
             secret_key,
             password=secret_key_password,
