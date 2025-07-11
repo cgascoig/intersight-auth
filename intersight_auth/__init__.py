@@ -1,4 +1,4 @@
-__version__ = "0.2.3"
+__version__ = "0.3.3"
 from intersight_auth.intersight_auth import (
     IntersightAuth,
     repair_pem,
