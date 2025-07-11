@@ -6,14 +6,14 @@ authors = [
     {name = "Chris Gascoigne", email="cgascoig@cisco.com"},
 ]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.9.2"
 dynamic = ["dependencies"]
 
 [project.urls]
 repository = "https://github.com/cgascoig/intersight-auth"
 
 [tool.poetry.dependencies]
-cryptography = ">37.0.2,<45.0"
+cryptography = ">37.0.2"
 requests = "^2.27.1"
 oauthlib = "^3.2.2"
 

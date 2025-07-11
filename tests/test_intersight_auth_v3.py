@@ -1,5 +1,6 @@
 from intersight_auth import __version__
 from intersight_auth import IntersightAuth, repair_pem
+from intersight_auth.signing import _fix_v3_key_format
 from requests import Request
 import re
 from cryptography.hazmat.backends import default_backend
@@ -96,7 +97,9 @@ def _verify_signature(authorization_header, signed_string):
 
     try:
         priv_key = serialization.load_pem_private_key(
-            v3_secret_key.encode("utf-8"), password=None, backend=default_backend()
+            _fix_v3_key_format(v3_secret_key.encode("utf-8")),
+            password=None,
+            backend=default_backend(),
         )
         pub_key = priv_key.public_key()
         pub_key.verify(
